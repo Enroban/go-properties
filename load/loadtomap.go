@@ -5,6 +5,7 @@ import (
 	"os"
 	"bufio"
 	"strings"
+	"regexp"
 )
 
 //读取文件
@@ -18,28 +19,45 @@ func readfile(url string) ([]string, error) {
 	}
 
 	buf := bufio.NewReader(f)
-	propertiesString := make([]string,0)
+	propertiesString := make([]string, 0)
 
 	for {
 		line, err := buf.ReadString('\n')
-		line = strings.TrimSpace(line)
-		if line!="" {
-			propertiesString=append(propertiesString, line)
-		}
+
 		if err != nil {
 			if err == io.EOF {
 				break
 			}
 			return nil, err
 		}
+
+		line = strings.TrimSpace(line)
+
+		//跳过空字符串
+		if line == "" {
+			continue
+		}
+
+		//跳过注释
+		match,err:=regexp.MatchString("^#",line)
+
+		if err != nil {
+			return nil, err
+		}
+
+		if match {
+			continue
+		}
+
+		propertiesString = append(propertiesString, line)
 	}
 
 	return propertiesString, nil
 }
 
 //加载properties为map
-func LoadProperties(url string) (map[string]string,error) {
-	propertiesString,err:=readfile(url)
+func LoadProperties(url string) (map[string]string, error) {
+	propertiesString, err := readfile(url)
 
 	if err != nil {
 		return nil, err
@@ -49,17 +67,17 @@ func LoadProperties(url string) (map[string]string,error) {
 }
 
 //转换为map
-func convertToMap(propertiesString []string) (map[string]string,error) {
-	propertiesMap:=make(map[string]string)
+func convertToMap(propertiesString []string) (map[string]string, error) {
+	propertiesMap := make(map[string]string)
 
-	for _,value := range propertiesString{
-		keyvalue:=strings.Split(value,"=")
+	for _, value := range propertiesString {
+		keyvalue := strings.Split(value, "=")
 
-		if len(keyvalue)==2 {
-			propertiesMap[keyvalue[0]]=keyvalue[1]
+		if len(keyvalue) == 2 {
+			propertiesMap[keyvalue[0]] = keyvalue[1]
 		}
 
 	}
 
-	return propertiesMap,nil
+	return propertiesMap, nil
 }
