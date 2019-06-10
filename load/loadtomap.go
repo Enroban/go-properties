@@ -74,7 +74,7 @@ func convertToMap(propertiesString []string) (map[string]string, error) {
 		keyvalue := strings.Split(value, "=")
 
 		if len(keyvalue) == 2 {
-			propertiesMap[keyvalue[0]] = keyvalue[1]
+			propertiesMap[strings.TrimSpace(keyvalue[0])] = strings.TrimSpace(keyvalue[1])
 		}
 
 	}
